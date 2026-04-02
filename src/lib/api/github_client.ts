@@ -4,9 +4,6 @@ const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 const MAX_RETRIES = 2;
 const INITIAL_BACKOFF_MS = 1000;
 
-// Mock mode for development
-const MOCK_MODE = import.meta.env.VITE_MOCK_MODE === 'true';
-
 interface GraphQLResponse<T> {
   data?: T;
   errors?: Array<{
@@ -30,57 +27,6 @@ interface PendingRequest {
 
 // In-flight request cache for deduplication
 const pendingRequests = new Map<string, PendingRequest>();
-
-/**
- * Mock data for development without GitHub authentication
- */
-const MOCK_VIEWER_DATA = {
-  viewer: {
-    login: 'dev-user',
-    avatarUrl: 'https://github.com/placeholder.png',
-    repositories: {
-      totalCount: 3,
-      pageInfo: { hasNextPage: false, endCursor: null },
-      nodes: [
-        {
-          id: 'repo-1',
-          name: 'my-awesome-project',
-          nameWithOwner: 'dev-user/my-awesome-project',
-          url: 'https://github.com/dev-user/my-awesome-project',
-          updatedAt: new Date().toISOString(),
-          primaryLanguage: { name: 'TypeScript', color: '#3178c6' },
-          pullRequests: { totalCount: 5 },
-          ciState: 'success' as const
-        },
-        {
-          id: 'repo-2',
-          name: 'web-app',
-          nameWithOwner: 'dev-user/web-app',
-          url: 'https://github.com/dev-user/web-app',
-          updatedAt: new Date(Date.now() - 86400000).toISOString(),
-          primaryLanguage: { name: 'JavaScript', color: '#f1e05a' },
-          pullRequests: { totalCount: 2 },
-          ciState: 'pending' as const
-        },
-        {
-          id: 'repo-3',
-          name: 'api-service',
-          nameWithOwner: 'my-org/api-service',
-          url: 'https://github.com/my-org/api-service',
-          updatedAt: new Date(Date.now() - 172800000).toISOString(),
-          primaryLanguage: { name: 'Python', color: '#3572A5' },
-          pullRequests: { totalCount: 12 },
-          ciState: 'failure' as const
-        }
-      ]
-    },
-    organizations: {
-      nodes: [
-        { login: 'my-org', name: 'My Organization', avatarUrl: 'https://github.com/org-placeholder.png', url: 'https://github.com/my-org' }
-      ]
-    }
-  }
-};
 
 /**
  * Create a cache key from query and variables
@@ -116,13 +62,6 @@ function parseRateLimit(headers: Headers): RateLimitInfo | null {
 }
 
 /**
- * Sleep for a given duration
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
  * Execute a GraphQL query with retry logic
  */
 async function executeQuery<T>(
@@ -130,12 +69,6 @@ async function executeQuery<T>(
   variables?: Record<string, unknown>,
   attempt = 0
 ): Promise<{ data: T; rateLimit: RateLimitInfo | null }> {
-  // Return mock data in development mode
-  if (MOCK_MODE) {
-    await sleep(500); // Simulate network delay
-    return { data: MOCK_VIEWER_DATA as unknown as T, rateLimit: null };
-  }
-
   const token = getToken();
 
   if (!token) {

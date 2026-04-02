@@ -1,37 +1,34 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { login, logout, getAuthState } from '$lib/core/auth_engine.svelte';
+  import { loginWithToken, logout, getAuthState } from '$lib/core/auth_engine.svelte';
   import GlobalSidebar from '$lib/features/global_sidebar/GlobalSidebar.svelte';
   import { layoutState } from '$lib/core/layout_state.svelte';
 
   const auth = getAuthState();
 
-  let verificationUri = $state<string>('');
-  let userCode = $state<string>('');
-  let loginInitiated = $state(false);
+  let personalToken = $state('');
+  let showTokenInput = $state(false);
 
-  async function handleLogin() {
-    const result = await login();
-    if (result.success && result.verification_uri && result.user_code) {
-      verificationUri = result.verification_uri;
-      userCode = result.user_code;
-      loginInitiated = true;
+  function toggleTokenInput() {
+    showTokenInput = !showTokenInput;
+  }
+
+  async function handleTokenSubmit() {
+    if (!personalToken.trim()) {
+      return;
+    }
+    
+    const result = await loginWithToken(personalToken.trim());
+    if (result.success) {
+      personalToken = '';
+      showTokenInput = false;
     }
   }
 
   function handleLogout() {
     logout();
-    loginInitiated = false;
-    verificationUri = '';
-    userCode = '';
-  }
-
-  async function copyCode() {
-    try {
-      await navigator.clipboard.writeText(userCode);
-    } catch {
-      // Fallback
-    }
+    showTokenInput = false;
+    personalToken = '';
   }
 </script>
 
@@ -45,47 +42,41 @@
         <div class="alert alert-error" role="alert">{auth.error}</div>
       {/if}
 
-      <button onclick={handleLogin} class="btn btn-primary" disabled={auth.isAuthenticating}>
-        {#if auth.isAuthenticating}
-          <span class="spinner"></span>
-          Connecting...
-        {:else}
-          Sign in with GitHub
-        {/if}
-      </button>
-    </div>
-  </div>
-{:else if loginInitiated && verificationUri && userCode}
-  <div class="auth-container flex items-center justify-center p-lg">
-    <div class="device-flow max-w-md">
-      <h2 data-text="xl" data-weight="semibold" data-margin="lg">Authorize Dash-Git</h2>
-      <ol class="steps card" data-pad="md" data-bg="surface-alt">
-        <li>
-          Visit:
-          <a href={verificationUri} target="_blank" rel="noopener noreferrer" data-color="primary">
-            {verificationUri}
-          </a>
-        </li>
-        <li>
-          Enter this code:
-          <button type="button" class="user-code-btn" onclick={copyCode} title="Click to copy" data-radius="sm" data-border="md">
-            <span data-text="lg" data-weight="bold">{userCode}</span>
-          </button>
-        </li>
-        <li>Confirm authorization on GitHub</li>
-      </ol>
-      {#if auth.isAuthenticating}
-        <div class="polling flex items-center justify-center gap-md my-md" data-color="muted">
-          <span class="spinner"></span>
-          <p>Waiting for authorization...</p>
+      {#if showTokenInput}
+        <div class="token-input card my-md" data-pad="md" data-bg="surface-alt" data-radius="md">
+          <label for="pat-input" data-text="sm" data-weight="medium">GitHub Personal Access Token</label>
+          <input
+            id="pat-input"
+            type="password"
+            placeholder="ghp_..."
+            bind:value={personalToken}
+            class="pat-input mt-xs mb-md"
+            data-radius="md"
+            data-border="md"
+            onkeydown={(e) => e.key === 'Enter' && handleTokenSubmit()}
+          />
+          <div class="flex gap-md">
+            <button onclick={handleTokenSubmit} class="btn btn-primary flex-1" disabled={auth.isAuthenticating}>
+              {#if auth.isAuthenticating}
+                <span class="spinner"></span>
+                Connecting...
+              {:else}
+                Connect with Token
+              {/if}
+            </button>
+            <button onclick={toggleTokenInput} class="btn btn-secondary">Cancel</button>
+          </div>
+          <p class="help-text mt-md" data-text="xs" data-color="muted">
+            Create a token at 
+            <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" data-color="primary">github.com/settings/tokens</a>
+            with the <code>repo</code> scope.
+          </p>
         </div>
+      {:else}
+        <button onclick={toggleTokenInput} class="btn btn-primary">
+          Enter Personal Access Token
+        </button>
       {/if}
-      {#if auth.error}
-        <div class="alert alert-error" role="alert">{auth.error}</div>
-      {/if}
-      <button onclick={handleLogout} class="btn btn-secondary mt-md">
-        Cancel
-      </button>
     </div>
   </div>
 {:else}
@@ -98,36 +89,44 @@
     text-align: center;
   }
 
-  .login-prompt,
-  .device-flow {
+  .login-prompt {
     width: 100%;
   }
 
-  .steps {
+  .token-input {
     text-align: left;
   }
 
-  .steps li {
-    margin-bottom: var(--gutter-sm);
-    line-height: var(--leading-normal);
-  }
-
-  .user-code-btn {
-    display: inline-block;
-    background: var(--color-surface);
-    padding: var(--pad-xs) var(--pad-sm);
+  .pat-input {
+    width: 100%;
+    padding: var(--pad-sm) var(--pad-md);
+    border: 1px solid var(--color-border);
+    font-size: var(--text-sm);
     font-family: var(--font-mono);
-    cursor: pointer;
-    transition: var(--transition-fast);
+    background: var(--color-surface);
 
-    &:hover {
+    &:focus {
+      outline: none;
       border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px --alpha(var(--color-primary), 0.1);
     }
   }
 
+  .help-text {
+    line-height: var(--leading-relaxed);
+  }
+
+  .help-text code {
+    background: var(--color-surface-alt);
+    padding: 0.1em 0.3em;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
   .spinner {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border: 2px solid var(--color-border);
     border-top-color: var(--color-primary);
     border-radius: 50%;
