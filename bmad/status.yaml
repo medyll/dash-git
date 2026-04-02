@@ -1,44 +1,45 @@
 project: dash-git
-phase: development
-progress: 20
-next_action: "Implement S1-01 — SvelteKit project setup"
-next_command: "bmad continue"
-next_role: "dev"
-active_role: scrum
+phase: release
+progress: 100
+next_action: "All sprints complete — project ready for production"
+next_command: "bmad status"
+next_role: "scrum"
+active_role: dev
 
 phases:
   - name: planning
     status: done
   - name: development
-    status: in_progress
+    status: done
   - name: testing
-    status: upcoming
+    status: done
   - name: release
-    status: upcoming
+    status: active
 
 artifacts:
   prd: done
   architecture: done
   sprint-plan: done
+  readme: done
 
 sprints:
   - id: 1
-    status: active
+    status: done
     goal: "Foundation & Auth — app boots and users can log in"
     stories: ["S1-01", "S1-02", "S1-03", "S1-04", "S1-05"]
   - id: 2
-    status: planned
+    status: done
     goal: "Sidebar & Tab Engine — users see repos and open tabs"
     stories: ["S2-01", "S2-02", "S2-03", "S2-04", "S2-05"]
   - id: 3
-    status: planned
+    status: done
     goal: "Repo Browser & Tree — browse files and read README"
     stories: ["S3-01", "S3-02", "S3-03", "S3-04", "S3-05"]
   - id: 4
-    status: planned
+    status: done
     goal: "Blob Viewer & PR Status — view files, see PR/CI status"
     stories: ["S4-01", "S4-02", "S4-03", "S4-04", "S4-05", "S4-06"]
   - id: 5
-    status: planned
+    status: done
     goal: "Polish, Performance & Release — production-ready"
     stories: ["S5-01", "S5-02", "S5-03", "S5-04", "S5-05", "S5-06"]
