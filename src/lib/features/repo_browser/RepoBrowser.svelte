@@ -132,11 +132,11 @@
   }
 </script>
 
-<div class="repo-browser">
-  <div class="browser-header">
+<div class="repo-browser flex flex-col h-full p-md">
+  <div class="browser-header mb-xs">
     <div class="branch-selector">
       {#if branchesCache.data}
-        <select>
+        <select data-radius="md" data-border="md">
           {#each branchesCache.data.refs.nodes as branch}
             <option value={branch.name} selected={branch.name === currentBranch}>
               {branch.name}
@@ -144,44 +144,46 @@
           {/each}
         </select>
       {:else}
-        <span class="loading">Loading branches...</span>
+        <span class="loading" data-text="sm" data-color="muted">Loading branches...</span>
       {/if}
     </div>
   </div>
 
-  <div class="breadcrumb-nav">
+  <div class="breadcrumb-nav flex items-center gap-xs flex-wrap mb-xs" data-text="sm">
     {#each getBreadcrumbs() as crumb, i}
-      {#if i > 0}<span class="separator">/</span>{/if}
-      <button 
+      {#if i > 0}<span class="separator" data-color="muted">/</span>{/if}
+      <button
         type="button"
-        class="breadcrumb-item" 
+        class="breadcrumb-item"
         onclick={() => navigateTo(crumb.path)}
+        data-radius="sm"
       >
         {crumb.label}
       </button>
     {/each}
   </div>
 
-  <div class="search-box">
-    <svg viewBox="0 0 16 16" width="14" height="14" class="search-icon"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11 6a5 5 0 1 0-10 0 5 5 0 0 0 10 0Z"/></svg>
-    <input 
-      type="text" 
-      placeholder="Filter files..." 
+  <div class="search-box relative mb-md">
+    <svg viewBox="0 0 16 16" width="14" height="14" class="search-icon absolute"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11 6a5 5 0 1 0-10 0 5 5 0 0 0 10 0Z"/></svg>
+    <input
+      type="text"
+      placeholder="Filter files..."
       bind:value={searchQuery}
       aria-label="Filter files"
+      class="search-input"
     />
   </div>
 
-  <div class="tree-list">
+  <div class="tree-list flex-1 overflow-y-auto">
     {#if treeCache.isLoading && !treeCache.data}
-      <div class="loading-state">Loading files...</div>
+      <div class="loading-state text-center p-lg" data-color="muted">Loading files...</div>
     {:else if treeCache.error}
-      <div class="error-state">
+      <div class="error-state text-center p-lg" data-color="muted">
         <p>Failed to load files</p>
-        <button onclick={() => treeCache.refresh()}>Retry</button>
+        <button onclick={() => treeCache.refresh()} class="btn btn-primary mt-xs">Retry</button>
       </div>
     {:else if filteredEntries.length === 0}
-      <div class="empty-state">No files found</div>
+      <div class="empty-state text-center p-lg" data-color="muted">No files found</div>
     {:else}
       {#each filteredEntries as entry (entry.path)}
         <button
@@ -190,11 +192,12 @@
           class:folder={entry.type === 'tree'}
           onclick={() => openFile(entry)}
           aria-label="{entry.type === 'tree' ? 'Folder' : 'File'} {entry.name}"
+          data-radius="sm"
         >
           <span class="file-icon">{getFileIcon(entry.name, entry.type)}</span>
-          <span class="file-name">{entry.name}</span>
+          <span class="file-name flex-1">{entry.name}</span>
           {#if entry.type === 'blob' && entry.size}
-            <span class="file-size">{formatSize(entry.size)}</span>
+            <span class="file-size" data-text="xs" data-color="muted">{formatSize(entry.size)}</span>
           {/if}
         </button>
       {/each}
@@ -203,99 +206,63 @@
 </div>
 
 <style>
-  .repo-browser {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 12px;
-  }
-
-  .browser-header {
-    margin-bottom: 8px;
-  }
-
   .branch-selector select {
-    padding: 6px 8px;
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-radius: 6px;
-    font-size: 0.875rem;
-    background: var(--color-bg, #fff);
+    padding: var(--pad-xs) var(--pad-sm);
+    border: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+    background: var(--color-surface);
     cursor: pointer;
-  }
-
-  .breadcrumb-nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-bottom: 8px;
-    font-size: 0.875rem;
-    flex-wrap: wrap;
   }
 
   .breadcrumb-item {
     background: transparent;
     border: none;
-    padding: 4px 8px;
+    padding: var(--pad-xs) var(--pad-sm);
     cursor: pointer;
-    border-radius: 4px;
-    color: var(--color-text, #1a1a1a);
-  }
+    color: var(--color-text);
+    transition: var(--transition-fast);
 
-  .breadcrumb-item:hover {
-    background: var(--color-bg, #f5f5f5);
-  }
-
-  .separator {
-    color: var(--color-muted, #666);
-  }
-
-  .search-box {
-    position: relative;
-    margin-bottom: 12px;
+    &:hover {
+      background: var(--color-surface-hover);
+    }
   }
 
   .search-icon {
-    position: absolute;
-    left: 8px;
+    left: var(--pad-sm);
     top: 50%;
     transform: translateY(-50%);
-    color: var(--color-muted, #666);
+    color: var(--color-text-muted);
   }
 
-  .search-box input {
+  .search-input {
     width: 100%;
-    padding: 6px 8px 6px 28px;
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-radius: 6px;
-    font-size: 0.875rem;
-  }
+    padding: var(--pad-xs) var(--pad-sm) var(--pad-xs) 28px;
+    border: 1px solid var(--color-border);
+    font-size: var(--text-sm);
 
-  .search-box input:focus {
-    outline: none;
-    border-color: #0969da;
-  }
-
-  .tree-list {
-    flex: 1;
-    overflow-y: auto;
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px --alpha(var(--color-primary), 0.1);
+    }
   }
 
   .tree-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    border-radius: 4px;
+    gap: var(--gutter-sm);
+    padding: var(--pad-xs) var(--pad-sm);
     cursor: pointer;
-    font-size: 0.875rem;
-  }
+    font-size: var(--text-sm);
+    transition: var(--transition-fast);
 
-  .tree-item:hover {
-    background: var(--color-bg, #f5f5f5);
-  }
+    &:hover {
+      background: var(--color-surface-hover);
+    }
 
-  .tree-item.folder .file-icon {
-    font-size: 1rem;
+    &.folder .file-icon {
+      font-size: var(--text-md);
+    }
   }
 
   .file-name {
@@ -305,31 +272,14 @@
     white-space: nowrap;
   }
 
-  .file-size {
-    font-size: 0.75rem;
-    color: var(--color-muted, #666);
-  }
-
   .loading-state,
   .error-state,
   .empty-state {
     text-align: center;
-    padding: 24px;
-    color: var(--color-muted, #666);
-  }
-
-  .error-state button {
-    margin-top: 8px;
-    padding: 6px 12px;
-    background: #0969da;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    padding: var(--pad-lg);
   }
 
   .loading {
-    color: var(--color-muted, #666);
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
   }
 </style>

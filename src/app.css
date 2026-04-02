@@ -1,17 +1,14 @@
+/* Import @medyll/css-base design system */
+@import "@medyll/css-base";
+
+/* App-specific customizations */
 :root {
-  --font-sans: system-ui, -apple-system, sans-serif;
-  --color-bg: #ffffff;
-  --color-text: #1a1a1a;
-  --color-border: #e0e0e0;
-  --color-muted: #666666;
+  /* Override defaults if needed — all tokens auto-update from these */
+  /* --color-primary: oklch(0.6 0.2 280); */
+  /* --default-font-size: 1rem; */
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
+/* Global resets */
 html, body {
   height: 100%;
   width: 100%;
@@ -19,6 +16,6 @@ html, body {
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-bg);
+  background: var(--color-surface);
   color: var(--color-text);
 }

@@ -25,75 +25,74 @@
   }
 </script>
 
-<div class="readme-viewer">
+<div class="readme-viewer" data-pad="md" data-text="base" data-leading="relaxed">
   {@html renderMarkdown(content)}
 </div>
 
 <style>
   .readme-viewer {
-    padding: 16px;
-    line-height: 1.6;
-  }
+    line-height: var(--leading-normal);
 
-  .readme-viewer :global(h1),
-  .readme-viewer :global(h2),
-  .readme-viewer :global(h3) {
-    margin-top: 24px;
-    margin-bottom: 16px;
-    font-weight: 600;
-  }
+    :global(h1),
+    :global(h2),
+    :global(h3) {
+      margin-top: var(--gutter-lg);
+      margin-bottom: var(--gutter-md);
+      font-weight: var(--font-semibold);
+    }
 
-  .readme-viewer :global(h1) {
-    font-size: 2em;
-    border-bottom: 1px solid var(--color-border, #e0e0e0);
-    padding-bottom: 0.3em;
-  }
+    :global(h1) {
+      font-size: var(--text-2xl);
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 0.3em;
+    }
 
-  .readme-viewer :global(h2) {
-    font-size: 1.5em;
-    border-bottom: 1px solid var(--color-border, #e0e0e0);
-    padding-bottom: 0.3em;
-  }
+    :global(h2) {
+      font-size: var(--text-xl);
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 0.3em;
+    }
 
-  .readme-viewer :global(pre) {
-    background: var(--color-bg, #f6f8fa);
-    padding: 16px;
-    border-radius: 6px;
-    overflow: auto;
-  }
+    :global(pre) {
+      background: var(--color-surface-alt);
+      padding: var(--pad-md);
+      border-radius: var(--radius-md);
+      overflow: auto;
+    }
 
-  .readme-viewer :global(code) {
-    background: var(--color-bg, #f6f8fa);
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
-    font-family: monospace;
-    font-size: 0.9em;
-  }
+    :global(code) {
+      background: var(--color-surface-alt);
+      padding: 0.2em 0.4em;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+    }
 
-  .readme-viewer :global(pre code) {
-    background: transparent;
-    padding: 0;
-  }
+    :global(pre code) {
+      background: transparent;
+      padding: 0;
+    }
 
-  .readme-viewer :global(a) {
-    color: #0969da;
-    text-decoration: none;
-  }
+    :global(a) {
+      color: var(--color-primary);
+      text-decoration: none;
 
-  .readme-viewer :global(a:hover) {
-    text-decoration: underline;
-  }
+      &:hover {
+        text-decoration: underline;
+      }
+    }
 
-  .readme-viewer :global(ul),
-  .readme-viewer :global(ol) {
-    padding-left: 2em;
-    margin: 16px 0;
-  }
+    :global(ul),
+    :global(ol) {
+      padding-left: 2em;
+      margin: var(--gutter-md) 0;
+    }
 
-  .readme-viewer :global(blockquote) {
-    border-left: 4px solid var(--color-border, #d0d7de);
-    padding-left: 16px;
-    margin: 16px 0;
-    color: var(--color-muted, #656d76);
+    :global(blockquote) {
+      border-left: 4px solid var(--color-border);
+      padding-left: var(--pad-md);
+      margin: var(--gutter-md) 0;
+      color: var(--color-text-muted);
+    }
   }
 </style>

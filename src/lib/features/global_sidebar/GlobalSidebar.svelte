@@ -137,66 +137,65 @@
   }
 </script>
 
-<div class="global-sidebar">
-  <div class="sidebar-header">
-    <h2 class="sidebar-title">Repositories</h2>
-    <button class="refresh-btn" onclick={refreshRepos} title="Refresh" aria-label="Refresh repositories">
+<div class="global-sidebar flex flex-col p-md">
+  <div class="sidebar-header flex items-center justify-between mb-sm">
+    <h2 class="sidebar-title" data-text="md" data-weight="semibold">Repositories</h2>
+    <button class="refresh-btn" onclick={refreshRepos} title="Refresh" aria-label="Refresh repositories" data-radius="sm">
       <svg viewBox="0 0 16 16" width="16" height="16"><path d="M1.705 8.005a.75.75 0 0 1 .346-.636 5.5 5.5 0 0 1 8.318 3.382.75.75 0 1 1-1.46.317 4 4 0 1 0-4.854-2.87.75.75 0 0 1-.35.192Zm12.59-1.637a.75.75 0 0 1-.346.636 5.5 5.5 0 0 1-8.318-3.382.75.75 0 1 1 1.46-.317 4 4 0 1 0 4.854 2.87.75.75 0 0 1 .35-.192Z"/></svg>
     </button>
   </div>
 
-  <div class="workspace-selector">
-    <select bind:value={selectedWorkspace}>
+  <div class="workspace-selector mb-xs">
+    <select bind:value={selectedWorkspace} data-radius="md" data-border="md">
       {#each getWorkspaces() as ws}
         <option value={ws.id}>{ws.name}</option>
       {/each}
     </select>
   </div>
 
-  <div class="search-box">
-    <svg viewBox="0 0 16 16" width="14" height="14" class="search-icon"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11 6a5 5 0 1 0-10 0 5 5 0 0 0 10 0Z"/></svg>
-    <input 
-      type="text" 
-      placeholder="Filter repos..." 
+  <div class="search-box relative mb-md">
+    <svg viewBox="0 0 16 16" width="14" height="14" class="search-icon absolute"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11 6a5 5 0 1 0-10 0 5 5 0 0 0 10 0Z"/></svg>
+    <input
+      type="text"
+      placeholder="Filter repos..."
       bind:value={searchQuery}
       aria-label="Filter repositories"
+      class="search-input"
     />
   </div>
 
-  <div class="repos-list">
+  <div class="repos-list flex-1 overflow-y-auto">
     {#if reposCache.isLoading && !reposCache.data}
-      <div class="loading-skeleton">
+      <div class="loading-skeleton flex flex-col gap-xs">
         {#each Array(5) as _, i}
           <div class="skeleton-item" style="animation-delay: {i * 100}ms"></div>
         {/each}
       </div>
     {:else if reposCache.error}
-      <div class="error-state">
+      <div class="error-state text-center p-lg" data-color="muted">
         <p>Failed to load repositories</p>
-        <button onclick={refreshRepos}>Retry</button>
+        <button onclick={refreshRepos} class="btn btn-primary mt-xs">Retry</button>
       </div>
     {:else if filteredRepos.length === 0}
-      <div class="empty-state">
-        <p>No repositories found</p>
-      </div>
+      <div class="empty-state text-center p-lg" data-color="muted">No repositories found</div>
     {:else}
       {#each filteredRepos as repo (repo.id)}
-        <button type="button" class="repo-item" onclick={() => openRepo(repo)} aria-label="Open {repo.nameWithOwner} repository">
-          <div class="repo-header">
-            <span class="repo-name" title={repo.nameWithOwner}>{repo.name}</span>
-            <div class="repo-badges">
+        <button type="button" class="repo-item" onclick={() => openRepo(repo)} aria-label="Open {repo.nameWithOwner} repository" data-radius="md">
+          <div class="repo-header flex items-center justify-between mb-xs">
+            <span class="repo-name" data-text="sm" data-weight="semibold" title={repo.nameWithOwner}>{repo.name}</span>
+            <div class="repo-badges flex items-center gap-xs">
               <PRBadge count={repo.pullRequests.totalCount} />
               <CIStatusBadge state={repo.ciState || 'unknown'} />
             </div>
           </div>
-          <div class="repo-meta">
+          <div class="repo-meta flex items-center gap-xs" data-text="xs" data-color="muted">
             <span class="repo-owner">{repo.nameWithOwner.split('/')[0]}</span>
             {#if repo.primaryLanguage}
               <span class="language-dot" style="background: {repo.primaryLanguage.color}"></span>
               <span class="language-name">{repo.primaryLanguage.name}</span>
             {/if}
           </div>
-          <div class="repo-updated">Updated {formatDate(repo.updatedAt)}</div>
+          <div class="repo-updated" data-text="xs" data-color="muted">Updated {formatDate(repo.updatedAt)}</div>
         </button>
       {/each}
     {/if}
@@ -205,89 +204,58 @@
 
 <style>
   .global-sidebar {
-    display: flex;
-    flex-direction: column;
     height: 100%;
-    padding: 12px;
-  }
-
-  .sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
   }
 
   .sidebar-title {
-    font-size: 1rem;
-    font-weight: 600;
     margin: 0;
   }
 
   .refresh-btn {
     background: transparent;
     border: none;
-    padding: 4px;
+    padding: var(--pad-xs);
     cursor: pointer;
-    color: var(--color-muted, #666);
-    border-radius: 4px;
-  }
+    color: var(--color-text-muted);
+    transition: var(--transition-fast);
 
-  .refresh-btn:hover {
-    background: var(--color-bg, #f5f5f5);
-    color: var(--color-text, #1a1a1a);
-  }
-
-  .workspace-selector {
-    margin-bottom: 8px;
+    &:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+    }
   }
 
   .workspace-selector select {
     width: 100%;
-    padding: 6px 8px;
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-radius: 6px;
-    font-size: 0.875rem;
-    background: var(--color-bg, #fff);
+    padding: var(--pad-xs) var(--pad-sm);
+    border: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+    background: var(--color-surface);
     cursor: pointer;
   }
 
-  .search-box {
-    position: relative;
-    margin-bottom: 12px;
-  }
-
   .search-icon {
-    position: absolute;
-    left: 8px;
+    left: var(--pad-sm);
     top: 50%;
     transform: translateY(-50%);
-    color: var(--color-muted, #666);
+    color: var(--color-text-muted);
   }
 
-  .search-box input {
+  .search-input {
     width: 100%;
-    padding: 6px 8px 6px 28px;
-    border: 1px solid var(--color-border, #e0e0e0);
-    border-radius: 6px;
-    font-size: 0.875rem;
-  }
+    padding: var(--pad-xs) var(--pad-sm) var(--pad-xs) 28px;
+    border: 1px solid var(--color-border);
+    font-size: var(--text-sm);
 
-  .search-box input:focus {
-    outline: none;
-    border-color: #0969da;
-    box-shadow: 0 0 0 3px #0969da1a;
-  }
-
-  .repos-list {
-    flex: 1;
-    overflow-y: auto;
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px --alpha(var(--color-primary), 0.1);
+    }
   }
 
   .loading-skeleton {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    gap: var(--gutter-xs);
   }
 
   .skeleton-item {
@@ -295,7 +263,7 @@
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
   }
 
   @keyframes shimmer {
@@ -305,60 +273,26 @@
 
   .error-state,
   .empty-state {
+    padding: var(--pad-lg);
     text-align: center;
-    padding: 24px 12px;
-    color: var(--color-muted, #666);
-  }
-
-  .error-state button {
-    margin-top: 8px;
-    padding: 6px 12px;
-    background: #0969da;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
   }
 
   .repo-item {
-    padding: 8px;
-    border-radius: 6px;
+    padding: var(--pad-sm);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: background 0.15s;
-  }
+    transition: var(--transition-fast);
+    width: 100%;
 
-  .repo-item:hover {
-    background: #f6f8fa;
-  }
-
-  .repo-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
+    &:hover {
+      background: var(--color-surface-hover);
+    }
   }
 
   .repo-name {
-    font-weight: 600;
-    font-size: 0.875rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .repo-badges {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-  }
-
-  .repo-meta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    color: var(--color-muted, #666);
-    margin-bottom: 2px;
   }
 
   .repo-owner {
@@ -374,10 +308,5 @@
 
   .language-name {
     opacity: 0.9;
-  }
-
-  .repo-updated {
-    font-size: 0.7rem;
-    color: var(--color-muted, #666);
   }
 </style>

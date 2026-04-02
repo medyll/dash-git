@@ -31,39 +31,39 @@
       behavior: 'smooth'
     });
   }
-
-  function getTabClasses(tab: Tab): string {
-    return `tab-item${tab.isActive ? ' active' : ''}`;
-  }
 </script>
 
-<div class="tab-bar-container">
-  <button 
-    class="scroll-btn left" 
+<div class="tab-bar-container flex items-center gap-xs">
+  <button
+    class="scroll-btn flex items-center justify-center"
     onclick={() => scrollTabs('left')}
     aria-label="Scroll tabs left"
+    data-radius="sm"
   >
     <svg viewBox="0 0 16 16" width="16" height="16"><path d="M7.78 1.094a.75.75 0 0 1 .75.75v6.656l3.72-3.72a.75.75 0 1 1 1.06 1.06l-5 5a.75.75 0 0 1-1.062 0l-5-5a.75.75 0 0 1 1.06-1.06l3.72 3.72V1.844a.75.75 0 0 1 .75-.75Z"/></svg>
   </button>
 
-  <div class="tabs-container" bind:this={containerRef}>
+  <div class="tabs-container flex items-center gap-xs flex-1 overflow-x-auto" bind:this={containerRef}>
     {#each state.tabs as tab (tab.id)}
-      <div 
-        class={getTabClasses(tab)}
+      <div
+        class="tab-item"
+        class:active={tab.isActive}
         onclick={() => handleTabClick(tab)}
         onkeydown={(e) => e.key === 'Enter' && handleTabClick(tab)}
         role="tab"
         aria-selected={tab.isActive}
         tabindex={tab.isActive ? '0' : '-1'}
+        data-radius="sm"
       >
         <span class="tab-icon">{getTabIcon(tab.type)}</span>
-        <span class="tab-title">{tab.title}</span>
-        <button 
-          class="close-btn"
+        <span class="tab-title" data-text="sm">{tab.title}</span>
+        <button
+          class="close-btn flex items-center justify-center"
           onclick={(e) => handleCloseClick(e, tab.id)}
           aria-label="Close tab {tab.title}"
           tabindex="-1"
           type="button"
+          data-radius="sm"
         >
           <svg viewBox="0 0 16 16" width="14" height="14"><path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"/></svg>
         </button>
@@ -71,10 +71,11 @@
     {/each}
   </div>
 
-  <button 
-    class="scroll-btn right" 
+  <button
+    class="scroll-btn flex items-center justify-center"
     onclick={() => scrollTabs('right')}
     aria-label="Scroll tabs right"
+    data-radius="sm"
   >
     <svg viewBox="0 0 16 16" width="16" height="16"><path d="M8.22 1.094a.75.75 0 0 1 .75-.75v6.656l3.72-3.72a.75.75 0 1 1 1.06 1.06l-5 5a.75.75 0 0 1-1.062 0l-5-5a.75.75 0 0 1 1.06-1.06l3.72 3.72V1.844a.75.75 0 0 1 .75-.75Z"/></svg>
   </button>
@@ -85,78 +86,74 @@
     display: flex;
     align-items: center;
     height: 100%;
-    gap: 4px;
+    gap: var(--gutter-xs);
   }
 
   .scroll-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 28px;
     height: 28px;
     border: none;
     background: transparent;
     cursor: pointer;
-    border-radius: 4px;
-    color: var(--color-muted, #666);
+    color: var(--color-text-muted);
     flex-shrink: 0;
-  }
+    transition: var(--transition-fast);
 
-  .scroll-btn:hover {
-    background: var(--color-bg, #f5f5f5);
-    color: var(--color-text, #1a1a1a);
-  }
+    &:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+    }
 
-  .scroll-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
   }
 
   .tabs-container {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--gutter-xs);
     overflow-x: auto;
     overflow-y: hidden;
     flex: 1;
     scrollbar-width: none;
     -ms-overflow-style: none;
-  }
 
-  .tabs-container::-webkit-scrollbar {
-    display: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .tab-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 8px;
+    gap: var(--gutter-xs);
+    padding: var(--pad-xs) var(--pad-sm);
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8125rem;
+    font-size: var(--text-sm);
     white-space: nowrap;
     max-width: 200px;
-    transition: all 0.15s;
+    transition: var(--transition-fast);
     user-select: none;
     color: inherit;
     font: inherit;
-  }
 
-  .tab-item:hover {
-    background: var(--color-bg, #f5f5f5);
-  }
+    &:hover {
+      background: var(--color-surface-hover);
+    }
 
-  .tab-item.active {
-    background: var(--color-bg, #fff);
-    border-color: var(--color-border, #e0e0e0);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    &.active {
+      background: var(--color-surface);
+      border-color: var(--color-border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
   }
 
   .tab-icon {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
     flex-shrink: 0;
   }
 
@@ -164,36 +161,32 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--color-text, #1a1a1a);
+    color: var(--color-text);
   }
 
   .tab-item.active .tab-title {
-    font-weight: 500;
+    font-weight: var(--font-medium);
   }
 
   .close-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 18px;
     height: 18px;
     border: none;
     background: transparent;
     cursor: pointer;
-    border-radius: 3px;
-    color: var(--color-muted, #666);
+    color: var(--color-text-muted);
     flex-shrink: 0;
     opacity: 0;
-    transition: opacity 0.15s, background 0.15s;
-  }
+    transition: var(--transition-fast);
 
-  .tab-item:hover .close-btn {
-    opacity: 1;
-  }
+    .tab-item:hover & {
+      opacity: 1;
+    }
 
-  .close-btn:hover {
-    background: var(--color-bg, #e0e0e0);
-    color: var(--color-text, #1a1a1a);
+    &:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+    }
   }
 
   /* Mobile: always show close button */

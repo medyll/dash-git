@@ -5,12 +5,13 @@
 </script>
 
 <div class="app-shell" class:collapsed={layoutState.sidebarCollapsed}>
-  <aside class="sidebar" style="width: {layoutState.sidebarWidth}px;">
+  <aside class="sidebar" style="width: {layoutState.sidebarWidth}px;" data-bg="surface-alt">
     <button
       class="sidebar-toggle"
       onclick={() => layoutState.toggleSidebar()}
       aria-label={layoutState.sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       title={layoutState.sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      data-radius="sm"
     >
       {#if layoutState.sidebarCollapsed}
         <svg viewBox="0 0 16 16" width="16" height="16"><path d="M7.781 1.094a.75.75 0 0 1 .75.75v6.656l3.72-3.72a.75.75 0 1 1 1.06 1.06l-5 5a.75.75 0 0 1-1.062 0l-5-5a.75.75 0 0 1 1.06-1.06l3.72 3.72V1.844a.75.75 0 0 1 .75-.75Z"/></svg>
@@ -22,12 +23,12 @@
       <slot />
     </div>
   </aside>
-  <div class="main">
+  <div class="main flex flex-col">
     <header class="tab-bar">
       <TabBar />
     </header>
-    <main class="content">
-      <p class="placeholder-text">Select a repository to view</p>
+    <main class="content flex-1">
+      <p class="placeholder-text" data-text="md" data-color="muted">Select a repository to view</p>
     </main>
   </div>
 </div>
@@ -41,17 +42,16 @@
   }
 
   .sidebar {
-    border-right: 1px solid var(--color-border, #e0e0e0);
+    border-right: 1px solid var(--color-border);
     overflow: hidden;
     transition: width 0.2s ease;
     position: relative;
-    background: var(--color-bg, #ffffff);
   }
 
   .sidebar-toggle {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: var(--gutter-sm);
+    right: var(--gutter-sm);
     width: 24px;
     height: 24px;
     display: flex;
@@ -59,15 +59,15 @@
     justify-content: center;
     background: transparent;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
-    color: var(--color-muted, #666);
+    color: var(--color-text-muted);
     z-index: 10;
-  }
+    transition: var(--transition-fast);
 
-  .sidebar-toggle:hover {
-    background: var(--color-bg, #f5f5f5);
-    color: var(--color-text, #1a1a1a);
+    &:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+    }
   }
 
   .sidebar-content {
@@ -78,28 +78,25 @@
 
   .main {
     flex: 1;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
     min-width: 0;
   }
 
   .tab-bar {
     height: 40px;
-    border-bottom: 1px solid var(--color-border, #e0e0e0);
-    background: var(--color-bg, #ffffff);
-    padding: 4px 8px;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: var(--pad-xs) var(--pad-sm);
   }
 
   .content {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
-    background: var(--color-bg, #ffffff);
+    padding: var(--pad-md);
+    background: var(--color-surface);
   }
 
   .placeholder-text {
-    color: var(--color-muted, #666);
     text-align: center;
     margin-top: 40px;
   }
@@ -126,8 +123,8 @@
 
     .sidebar-toggle {
       position: fixed;
-      top: 8px;
-      left: 8px;
+      top: var(--gutter-sm);
+      left: var(--gutter-sm);
       z-index: 101;
     }
   }

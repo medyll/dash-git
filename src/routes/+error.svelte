@@ -7,14 +7,14 @@
   });
 </script>
 
-<div class="error-page">
-  <div class="error-content">
-    <h1>Oops!</h1>
-    <p class="error-message">Something went wrong</p>
+<div class="error-page flex items-center justify-center min-h-screen p-lg text-center">
+  <div class="error-content max-w-lg">
+    <h1 data-text="4xl" data-weight="bold" data-color="critical" data-margin="lg">Oops!</h1>
+    <p class="error-message" data-text="xl" data-margin="lg">Something went wrong</p>
     {#if $page.error instanceof Error}
-      <pre class="error-details">{$page.error.message}</pre>
+      <pre class="error-details card" data-pad="md" data-bg="surface-alt" data-radius="md" data-text="sm">{ $page.error.message }</pre>
     {/if}
-    <div class="error-actions">
+    <div class="error-actions flex items-center justify-center gap-md mt-lg">
       <button onclick={() => goto('/')} class="btn btn-primary">
         Go Home
       </button>
@@ -26,75 +26,11 @@
 </div>
 
 <style>
-  .error-page {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 24px;
-    text-align: center;
-  }
-
-  .error-content {
-    max-width: 500px;
-  }
-
-  h1 {
-    font-size: 3rem;
-    margin-bottom: 16px;
-    color: #cf222e;
-  }
-
-  .error-message {
-    font-size: 1.25rem;
-    color: var(--color-text, #1a1a1a);
-    margin-bottom: 24px;
-  }
-
   .error-details {
-    background: var(--color-bg, #f6f8fa);
-    padding: 16px;
-    border-radius: 6px;
-    font-size: 0.875rem;
     text-align: left;
     overflow: auto;
     max-height: 200px;
-    margin-bottom: 24px;
-    border: 1px solid var(--color-border, #e0e0e0);
-  }
-
-  .error-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-  }
-
-  .btn {
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-  }
-
-  .btn-primary {
-    background: #0969da;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background: #0860ca;
-  }
-
-  .btn-secondary {
-    background: var(--color-bg, #fff);
-    color: var(--color-text, #1a1a1a);
-    border: 1px solid var(--color-border, #e0e0e0);
-  }
-
-  .btn-secondary:hover {
-    background: var(--color-bg, #f5f5f5);
+    margin-bottom: var(--gutter-lg);
+    border: 1px solid var(--color-border);
   }
 </style>

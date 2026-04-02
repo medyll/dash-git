@@ -2,7 +2,7 @@
   export let count: number = 0;
 </script>
 
-<span class="pr-badge" class:has-count={count > 0} aria-label="{count} open pull requests" title="{count} open pull requests">
+<span class="badge badge-info" class:has-count={count > 0} aria-label="{count} open pull requests" title="{count} open pull requests">
   {#if count > 0}
     {count}
   {:else}
@@ -11,22 +11,7 @@
 </span>
 
 <style>
-  .pr-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: #ddf4ff;
-    color: #0969da;
-    border: 1px solid #54aeff66;
-  }
-
-  .pr-badge.has-count {
-    background: #0969da;
-    color: white;
+  .has-count {
     animation: glow 2s ease-in-out infinite;
   }
 
