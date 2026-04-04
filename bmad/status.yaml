@@ -1,10 +1,12 @@
 project: dash-git
 phase: release
-progress: 100
-next_action: "All sprints complete — project ready for production"
-next_command: "bmad status"
-next_role: "scrum"
+progress: 85
+next_action: "Fix Svelte 5 reactivity bug in supabase_auth.svelte.ts — auth state stuck on 'Loading...'"
+next_command: "bmad continue"
+next_role: "dev"
 active_role: dev
+status: postponed
+postponed_reason: "Auth state reactivity issue with Svelte 5 $state exports. Needs a more capable model to debug."
 
 phases:
   - name: planning
@@ -43,3 +45,18 @@ sprints:
     status: done
     goal: "Polish, Performance & Release — production-ready"
     stories: ["S5-01", "S5-02", "S5-03", "S5-04", "S5-05", "S5-06"]
+
+known_issues:
+  - id: "BUG-001"
+    severity: critical
+    description: "Auth state stuck on 'Loading...' after Supabase integration"
+    root_cause: "Svelte 5 reactivity issue with exported $state objects in modules"
+    file: "src/lib/core/supabase_auth.svelte.ts"
+    fix_hint: "Use a Svelte store or pass authState directly instead of getAuthState() getter"
+    added: "2026-04-03"
+
+credentials:
+  supabase_project: "wntrxumurijasfstiohn"
+  supabase_url: "https://wntrxumurijasfstiohn.supabase.co"
+  github_oauth_client_id: "Ov23lieeN9XbxaepcXvr"
+  dev_port: 5123
