@@ -1,4 +1,4 @@
-import { getToken } from '$lib/core/auth_engine.svelte';
+import { getAuthToken } from '$lib/core/supabase_auth.svelte';
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 const MAX_RETRIES = 2;
@@ -69,10 +69,10 @@ async function executeQuery<T>(
   variables?: Record<string, unknown>,
   attempt = 0
 ): Promise<{ data: T; rateLimit: RateLimitInfo | null }> {
-  const token = getToken();
+  const token = getAuthToken();
 
   if (!token) {
-    throw new Error('Authentication required. Please log in.');
+    throw new Error('Authentication required. Please sign in.');
   }
 
   const response = await fetch(GITHUB_GRAPHQL_URL, {

@@ -4,6 +4,7 @@
   import { query } from '$lib/api/github_client';
   import { REPOS_QUERY } from '$lib/api/github_queries';
   import { openTab } from '$lib/core/tab_engine.svelte';
+  import { signOut } from '$lib/core/supabase_auth.svelte';
   import PRBadge from '$lib/shared/PRBadge.svelte';
   import CIStatusBadge from '$lib/shared/CIStatusBadge.svelte';
 
@@ -140,9 +141,14 @@
 <div class="global-sidebar flex flex-col p-md">
   <div class="sidebar-header flex items-center justify-between mb-sm">
     <h2 class="sidebar-title" data-text="md" data-weight="semibold">Repositories</h2>
-    <button class="refresh-btn" onclick={refreshRepos} title="Refresh" aria-label="Refresh repositories" data-radius="sm">
-      <svg viewBox="0 0 16 16" width="16" height="16"><path d="M1.705 8.005a.75.75 0 0 1 .346-.636 5.5 5.5 0 0 1 8.318 3.382.75.75 0 1 1-1.46.317 4 4 0 1 0-4.854-2.87.75.75 0 0 1-.35.192Zm12.59-1.637a.75.75 0 0 1-.346.636 5.5 5.5 0 0 1-8.318-3.382.75.75 0 1 1 1.46-.317 4 4 0 1 0 4.854 2.87.75.75 0 0 1 .35-.192Z"/></svg>
-    </button>
+    <div class="flex items-center gap-xs">
+      <button class="refresh-btn" onclick={refreshRepos} title="Refresh" aria-label="Refresh repositories" data-radius="sm">
+        <svg viewBox="0 0 16 16" width="16" height="16"><path d="M1.705 8.005a.75.75 0 0 1 .346-.636 5.5 5.5 0 0 1 8.318 3.382.75.75 0 1 1-1.46.317 4 4 0 1 0-4.854-2.87.75.75 0 0 1-.35.192Zm12.59-1.637a.75.75 0 0 1-.346.636 5.5 5.5 0 0 1-8.318-3.382.75.75 0 1 1 1.46-.317 4 4 0 1 0 4.854 2.87.75.75 0 0 1 .35-.192Z"/></svg>
+      </button>
+      <button class="signout-btn" onclick={signOut} title="Sign out" aria-label="Sign out" data-radius="sm">
+        <svg viewBox="0 0 16 16" width="16" height="16"><path d="M2 2.75a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Zm0 5a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75ZM2 12.75a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75ZM13.5 8a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0ZM12 8a4 4 0 1 0-8 0 4 4 0 0 0 8 0Z"/></svg>
+      </button>
+    </div>
   </div>
 
   <div class="workspace-selector mb-xs">
@@ -222,6 +228,20 @@
     &:hover {
       background: var(--color-surface-hover);
       color: var(--color-text);
+    }
+  }
+
+  .signout-btn {
+    background: transparent;
+    border: none;
+    padding: var(--pad-xs);
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: var(--transition-fast);
+
+    &:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-critical);
     }
   }
 

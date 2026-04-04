@@ -1,82 +1,46 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { loginWithToken, logout, getAuthState } from '$lib/core/auth_engine.svelte';
+  import { signInWithGitHub, signOut, getAuthState } from '$lib/core/supabase_auth.svelte';
   import GlobalSidebar from '$lib/features/global_sidebar/GlobalSidebar.svelte';
-  import { layoutState } from '$lib/core/layout_state.svelte';
 
   const auth = getAuthState();
 
-  let personalToken = $state('');
-  let showTokenInput = $state(false);
-
-  function toggleTokenInput() {
-    showTokenInput = !showTokenInput;
+  async function handleSignIn() {
+    await signInWithGitHub();
   }
 
-  async function handleTokenSubmit() {
-    if (!personalToken.trim()) {
-      return;
-    }
-    
-    const result = await loginWithToken(personalToken.trim());
-    if (result.success) {
-      personalToken = '';
-      showTokenInput = false;
-    }
-  }
-
-  function handleLogout() {
-    logout();
-    showTokenInput = false;
-    personalToken = '';
+  async function handleSignOut() {
+    await signOut();
   }
 </script>
 
-{#if !auth.isAuthenticated}
+{#if auth.isLoading}
   <div class="auth-container flex items-center justify-center p-lg">
-    <div class="login-prompt max-w-md">
+    <div class="flex items-center gap-md" data-color="muted">
+      <span class="spinner"></span>
+      <p>Loading...</p>
+    </div>
+  </div>
+{:else if !auth.isAuthenticated}
+  <div class="auth-container flex items-center justify-center p-lg">
+    <div class="login-prompt max-w-md text-center">
       <h1 data-text="3xl" data-weight="bold" data-color="primary">Welcome to Dash-Git</h1>
-      <p data-text="lg" data-color="muted">A fast, clean GitHub dashboard for developers</p>
+      <p data-text="lg" data-color="muted" data-margin="md">A fast, clean GitHub dashboard for developers</p>
 
       {#if auth.error}
-        <div class="alert alert-error" role="alert">{auth.error}</div>
+        <div class="alert alert-error" role="alert" data-margin="md">{auth.error}</div>
       {/if}
 
-      {#if showTokenInput}
-        <div class="token-input card my-md" data-pad="md" data-bg="surface-alt" data-radius="md">
-          <label for="pat-input" data-text="sm" data-weight="medium">GitHub Personal Access Token</label>
-          <input
-            id="pat-input"
-            type="password"
-            placeholder="ghp_..."
-            bind:value={personalToken}
-            class="pat-input mt-xs mb-md"
-            data-radius="md"
-            data-border="md"
-            onkeydown={(e) => e.key === 'Enter' && handleTokenSubmit()}
-          />
-          <div class="flex gap-md">
-            <button onclick={handleTokenSubmit} class="btn btn-primary flex-1" disabled={auth.isAuthenticating}>
-              {#if auth.isAuthenticating}
-                <span class="spinner"></span>
-                Connecting...
-              {:else}
-                Connect with Token
-              {/if}
-            </button>
-            <button onclick={toggleTokenInput} class="btn btn-secondary">Cancel</button>
-          </div>
-          <p class="help-text mt-md" data-text="xs" data-color="muted">
-            Create a token at 
-            <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" data-color="primary">github.com/settings/tokens</a>
-            with the <code>repo</code> scope.
-          </p>
-        </div>
-      {:else}
-        <button onclick={toggleTokenInput} class="btn btn-primary">
-          Enter Personal Access Token
-        </button>
-      {/if}
+      <button onclick={handleSignIn} class="btn btn-primary">
+        <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" style="margin-right: 8px;">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        Sign in with GitHub
+      </button>
+
+      <p class="help-text mt-lg" data-text="xs" data-color="muted">
+        You'll be redirected to GitHub to authorize Dash-Git.
+        Your token is stored securely in localStorage.
+      </p>
     </div>
   </div>
 {:else}
@@ -86,47 +50,19 @@
 <style>
   .auth-container {
     min-height: 100vh;
-    text-align: center;
   }
 
   .login-prompt {
     width: 100%;
   }
 
-  .token-input {
-    text-align: left;
-  }
-
-  .pat-input {
-    width: 100%;
-    padding: var(--pad-sm) var(--pad-md);
-    border: 1px solid var(--color-border);
-    font-size: var(--text-sm);
-    font-family: var(--font-mono);
-    background: var(--color-surface);
-
-    &:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px --alpha(var(--color-primary), 0.1);
-    }
-  }
-
   .help-text {
     line-height: var(--leading-relaxed);
   }
 
-  .help-text code {
-    background: var(--color-surface-alt);
-    padding: 0.1em 0.3em;
-    border-radius: var(--radius-sm);
-    font-family: var(--font-mono);
-    font-size: 0.9em;
-  }
-
   .spinner {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     border: 2px solid var(--color-border);
     border-top-color: var(--color-primary);
     border-radius: 50%;
