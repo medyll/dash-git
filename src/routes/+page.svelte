@@ -1,8 +1,6 @@
 <script lang="ts">
-  import { signInWithGitHub, signOut, getAuthState } from '$lib/core/supabase_auth.svelte';
+  import { signInWithGitHub, signOut, authState } from '$lib/core/supabase_auth.svelte';
   import GlobalSidebar from '$lib/features/global_sidebar/GlobalSidebar.svelte';
-
-  const auth = getAuthState();
 
   async function handleSignIn() {
     await signInWithGitHub();
@@ -13,21 +11,21 @@
   }
 </script>
 
-{#if auth.isLoading}
+{#if $authState.isLoading}
   <div class="auth-container flex items-center justify-center p-lg">
     <div class="flex items-center gap-md" data-color="muted">
       <span class="spinner"></span>
       <p>Loading...</p>
     </div>
   </div>
-{:else if !auth.isAuthenticated}
+{:else if !$authState.user}
   <div class="auth-container flex items-center justify-center p-lg">
     <div class="login-prompt max-w-md text-center">
       <h1 data-text="3xl" data-weight="bold" data-color="primary">Welcome to Dash-Git</h1>
       <p data-text="lg" data-color="muted" data-margin="md">A fast, clean GitHub dashboard for developers</p>
 
-      {#if auth.error}
-        <div class="alert alert-error" role="alert" data-margin="md">{auth.error}</div>
+      {#if $authState.error}
+        <div class="alert alert-error" role="alert" data-margin="md">{$authState.error}</div>
       {/if}
 
       <button onclick={handleSignIn} class="btn btn-primary">

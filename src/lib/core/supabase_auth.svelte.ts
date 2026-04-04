@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { browser } from '$app/environment';
+import { writable, type Writable } from 'svelte/store';
 
 // Supabase configuration
 const SUPABASE_URL = 'https://wntrxumurijasfstiohn.supabase.co';
@@ -14,15 +15,19 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   }
 });
 
-/**
- * Reactive auth state object
- * Import this directly in components for reactivity
- */
-export const authState = $state({
-  session: null as any,
-  user: null as any,
+// Auth state using Svelte stores for proper reactivity
+interface AuthState {
+  session: any;
+  user: any;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export const authState: Writable<AuthState> = writable<AuthState>({
+  session: null,
+  user: null,
   isLoading: true,
-  error: null as string | null
+  error: null
 });
 
 /**
@@ -30,24 +35,30 @@ export const authState = $state({
  */
 export async function initAuth() {
   if (!browser) {
-    authState.isLoading = false;
+    authState.update(s => ({ ...s, isLoading: false }));
     return;
   }
 
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    authState.session = session;
-    authState.user = session?.user || null;
+    authState.update(s => ({
+      ...s,
+      session,
+      user: session?.user || null,
+      isLoading: false
+    }));
   } catch (err) {
     console.error('Auth init error:', err);
-  } finally {
-    authState.isLoading = false;
+    authState.update(s => ({ ...s, isLoading: false }));
   }
 
   supabase.auth.onAuthStateChange((_event, newSession) => {
-    authState.session = newSession;
-    authState.user = newSession?.user || null;
-    authState.isLoading = false;
+    authState.update(s => ({
+      ...s,
+      session: newSession,
+      user: newSession?.user || null,
+      isLoading: false
+    }));
   });
 }
 
@@ -55,7 +66,7 @@ export async function initAuth() {
  * Sign in with GitHub OAuth
  */
 export async function signInWithGitHub() {
-  authState.error = null;
+  authState.update(s => ({ ...s, error: null }));
   
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
@@ -66,7 +77,7 @@ export async function signInWithGitHub() {
   });
 
   if (error) {
-    authState.error = error.message;
+    authState.update(s => ({ ...s, error: error.message }));
     return { success: false, error: error.message };
   }
 
@@ -77,32 +88,29 @@ export async function signInWithGitHub() {
  * Sign out
  */
 export async function signOut() {
-  authState.error = null;
+  authState.update(s => ({ ...s, error: null }));
   
   const { error } = await supabase.auth.signOut();
   
   if (error) {
-    authState.error = error.message;
+    authState.update(s => ({ ...s, error: error.message }));
     return { success: false, error: error.message };
   }
 
-  authState.session = null;
-  authState.user = null;
+  authState.update(s => ({ ...s, session: null, user: null }));
   return { success: true };
 }
 
 /**
- * Get auth token for API calls
+ * Get auth token for API calls (synchronous, uses get() for current value)
  */
 export function getAuthToken(): string | null {
-  return authState.session?.access_token || null;
-}
-
-/**
- * Get reactive auth state
- */
-export function getAuthState() {
-  return authState;
+  let token: string | null = null;
+  const unsubscribe = authState.subscribe(s => {
+    token = s.session?.access_token || null;
+  });
+  unsubscribe();
+  return token;
 }
 
 // Initialize on module load
